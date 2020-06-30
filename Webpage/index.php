@@ -68,37 +68,52 @@ $(function() {
 	    xaxis: {
                 color: "black",
                 position: 'bottom',
-                axisLabel: 'Time (seconds)',
-		mode: "time",
-		timeBase: "seconds"
+                axisLabel: 'Time',
+				mode: "time",
+				minTickSize: [30, "minute"],
+				timeBase: "milliseconds"
 	    },
 	    yaxes: [ {
-                      min: 0,
-                      color: "black",
-                      tickFormatter: temperatureFormatter,
-                      position: 'left', 
-                      axisLabel: 'Temperature'
-                    }, 
-                    {
-                      	color: "black",
-						alignTicksWithAxis: 1,
-						position: "right",
-						tickFormatter: pressureFormatter,
-						axisLabel: 'Barometric Pressure', 
-						show: true,  
-						showTicks: true, 
-						gridLines: false
-					}, 
-                    {
-                      	color: "black",
-						alignTicksWithAxis: 1,
-						position: "right",
-						tickFormatter: percentFormatter,
-						axisLabel: 'Humidity', 
-						show: true,  
-						showTicks: true, 
-						gridLines: false
-					}],
+					color: "black",
+					tickFormatter: temperatureFormatter,
+					position: 'left', 
+					axisLabel: 'Temperature',
+					min: -15.00,
+					max: 50.00,
+					autoScaleMargin: null,
+					autoScale: "none",
+					growOnly: false
+				}, 
+				{
+					color: "black",
+					alignTicksWithAxis: 1,
+					position: "right",
+					tickFormatter: pressureFormatter,
+					axisLabel: 'Barometric Pressure', 
+					show: true,  
+					showTicks: true, 
+					gridLines: false,
+					min: 900.00,
+					max: 1100.00,
+					autoScaleMargin: null,
+					autoScale: "none",
+					growOnly: false
+				}, 
+				{
+					color: "black",
+					alignTicksWithAxis: 1,
+					position: "right",
+					tickFormatter: percentFormatter,
+					axisLabel: 'Humidity', 
+					show: true,  
+					showTicks: true, 
+					gridLines: false,
+					min: 0.00,
+					max: 100.00,
+					autoScaleMargin: null,
+					autoScale: "none",
+					growOnly: false					
+				}],
             legend: {
                 position: "ne",
                 show: true
