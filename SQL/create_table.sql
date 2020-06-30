@@ -1,0 +1,1 @@
+CREATE TABLE `data` ( `id` INTEGER NOT NULL AUTO_INCREMENT, `host` varchar(100) NOT NULL, `timestamp` datetime NOT NULL, `temperature` float NOT NULL, `pressure` float NOT NULL, `humidity` float NOT NULL, PRIMARY KEY (`id`))
