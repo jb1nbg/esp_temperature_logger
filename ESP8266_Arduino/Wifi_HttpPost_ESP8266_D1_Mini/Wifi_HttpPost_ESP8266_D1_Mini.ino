@@ -1,6 +1,6 @@
 /*
  * Board: LOLIN(WEMOS) D1 R2 & mini 
- * 
+ * Required Libraries: BMx280MI
  * 
  */
 
@@ -22,7 +22,7 @@
 #endif
 
 #define DEEP_SLEEP
-#define MEASURE_PERIOD_SEC    5
+#define MEASURE_PERIOD_SEC    30
 
 //Your Domain name with URL path or IP address with path
 const char* serverName = "http://192.168.178.46:10000/post_temperature_data.php";
@@ -42,25 +42,25 @@ void doWork();
 void setup_wifi();
 void setup_ntp();
 bool setup_bmx280();
-void pushData();
+void pushData(char* timestamp, float temp, double pressure, float humidity);
 
 void printLocalTime()
 {
   Serial.println(DateTime.toString());
 }
 
-void printBMX280()
+void printBMX280(float temp, double pressure, float humidity)
 {
-  Serial.print("Pressure: "); Serial.print(bmx280.getPressure()); Serial.println(" Pa");
-  Serial.print("Pressure: "); Serial.print(bmx280.getPressure() / 100); Serial.println(" mBar");
-  Serial.print("Pressure (64 bit): "); Serial.print(bmx280.getPressure64()); Serial.println(" Pa");
-  Serial.print("Pressure (64 bit): "); Serial.print(bmx280.getPressure64() / 100); Serial.println(" mBar");
-  Serial.print("Temperature: "); Serial.print(bmx280.getTemperature()); Serial.println(" °C");  
+  Serial.print("Temperature: "); Serial.print(temp); Serial.println(" °C"); 
+  Serial.print("Pressure (64 bit): "); Serial.print(pressure / 100); Serial.println(" mBar");
+  Serial.print("Humidity: "); Serial.print(humidity); Serial.println(" %");
 }
 
 void setup_wifi()
 {
   WiFi.begin( WIFI_SSID, WIFI_PASS );
+  WiFi.setOutputPower(0); // this sets wifi to lowest power
+  //WiFi.setOutputPower(20.5); // this sets wifi to highest power
 
   Serial.println();
   Serial.print("Connecting");
@@ -117,34 +117,40 @@ bool setup_bmx280()
   }
   else
   {
-    Serial.println("begin() failed. check your BMx280 Interface and I2C Address."); 
+    Serial.println("bmx280.begin() failed. check your BMx280 Interface and I2C Address."); 
     return false;   
   }
 }
 
+void deepSleep()
+{
+  Serial.print("Deep sleep for ");
+  Serial.print(MEASURE_PERIOD_SEC, DEC);
+  Serial.println(" seconds");
+
+  ESP.deepSleep(MEASURE_PERIOD_SEC * 1000 * 1000); // in uSec
+}
+
 void setup()
 {
-  delay(1000);
   Serial.begin(74880);
-
-  setup_wifi();
-  setup_ntp();
+  
   if (setup_bmx280())
   {
 #ifdef DEEP_SLEEP
     doWork();
-    ESP.deepSleep(MEASURE_PERIOD_SEC * 1000 * 1000); // in uSec
+    deepSleep();
 #endif
   }
   else
   {
 #ifdef DEEP_SLEEP
-    ESP.deepSleep(MEASURE_PERIOD_SEC * 1000 * 1000); // in uSec
+    deepSleep();
 #endif    
   }
 }
 
-void pushData(char* timestamp)
+void pushData(char* timestamp, float temp, double pressure, float humidity)
 {
   HTTPClient http;
   
@@ -156,9 +162,9 @@ void pushData(char* timestamp)
   // Data to send with HTTP POST
   String httpRequestData = "api_key=temperature_logger&timestamp=";
   httpRequestData += timestamp;
-  httpRequestData += "&temperature=" + String(bmx280.getTemperature());
-  httpRequestData += "&pressure=" + String(bmx280.getPressure64() / 100);
-  httpRequestData += "&humidity=" + String(bmx280.getHumidity());
+  httpRequestData += "&temperature=" + String(temp);
+  httpRequestData += "&pressure=" + String(pressure / 100);
+  httpRequestData += "&humidity=" + String(humidity);
   Serial.println(httpRequestData);
       
   // Send HTTP POST request
@@ -173,54 +179,57 @@ void pushData(char* timestamp)
 
 void doWork()
 {
-  //Check WiFi connection status
-  if (WiFi.status() == WL_CONNECTED)
-  {    
-    if (!DateTime.isTimeValid()) 
+  //start a measurement
+  if (bmx280.measure())
+  {
+    //wait for the measurement to finish
+    do
     {
-      Serial.println("Failed to get time from server, retry.");
-      DateTime.begin();
-    }
-    else
-    {      
-      DateTimeParts p = DateTime.getParts();
-      /*
-      Serial.printf("%04d/%02d/%02d %02d:%02d:%02d %ld %+05d\n", p.getYear(),
-              p.getMonth(), p.getMonthDay(), p.getHours(), p.getMinutes(),
-              p.getSeconds(), p.getTime(), p.getTimeZone());
-      */      
-      char timestampString[20];
-      sprintf(timestampString,"%04d-%02d-%02d %02d.%02d.%02d", p.getYear(), p.getMonth(), p.getMonthDay(), p.getHours(), p.getMinutes(), p.getSeconds());
-      Serial.println(timestampString);
+      delay(100);
+    } while (!bmx280.hasValue());
 
-      //start a measurement
-      if (bmx280.measure())
+    float temp = bmx280.getTemperature();
+    double pressure = bmx280.getPressure64();
+    float humidity = 0;
+    if (bmx280.isBME280())
+      humidity = bmx280.getHumidity();
+    
+    printBMX280(temp, pressure, humidity);
+          
+    setup_wifi();
+    setup_ntp();
+  
+    //Check WiFi connection status
+    if (WiFi.status() == WL_CONNECTED)
+    {    
+      if (!DateTime.isTimeValid()) 
       {
-        //wait for the measurement to finish
-        do
-        {
-          delay(100);
-        } while (!bmx280.hasValue());
-      
-        printBMX280();
-      
-        if (bmx280.isBME280())
-        {
-          Serial.print("Humidity: "); Serial.print(bmx280.getHumidity()); Serial.println(" %");
-        }
-        
-        pushData(timestampString);
+        Serial.println("Failed to get time from server, retry.");
+        DateTime.begin();
       }
       else
-      {
-          Serial.println("could not start measurement, is a measurement already running?");
-          return;        
+      {      
+        DateTimeParts p = DateTime.getParts();
+        /*
+        Serial.printf("%04d/%02d/%02d %02d:%02d:%02d %ld %+05d\n", p.getYear(),
+                p.getMonth(), p.getMonthDay(), p.getHours(), p.getMinutes(),
+                p.getSeconds(), p.getTime(), p.getTimeZone());
+        */      
+        char timestampString[20];
+        sprintf(timestampString,"%04d-%02d-%02d %02d.%02d.%02d", p.getYear(), p.getMonth(), p.getMonthDay(), p.getHours(), p.getMinutes(), p.getSeconds());
+        Serial.println(timestampString);
+          
+        pushData(timestampString, temp, pressure, humidity);
       }
     }
+    else 
+    {
+      Serial.println("WiFi Disconnected");
+    }
   }
-  else 
+  else
   {
-    Serial.println("WiFi Disconnected");
+      Serial.println("could not start measurement, is a measurement already running?");      
   }
 }
 
