@@ -11,9 +11,11 @@
 	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.saturated.js"></script>
 	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.browser.js"></script>
 	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.drawSeries.js"></script>
+	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.time.js"></script>	
 	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.uiConstants.js"></script>
-	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.legend.js"></script>
+	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.legend.js"></script>	
 	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.axislabels.js"></script>
+	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.tickrotor.js"></script>	
 
     <style>
     .x1Label {
@@ -66,11 +68,17 @@ $(function() {
 		},
 	    },
 	    xaxis: {
+				//autoScale: "none",
                 color: "black",
                 position: 'bottom',
-                axisLabel: 'Time (seconds)',
-		mode: "time",
-		timeBase: "seconds"
+                axisLabel: 'Time',
+				//rotateTicks: 90,
+				mode: "time",
+				minTickSize: [30, "minute"],
+				min: (new Date(2020, 6, 8, 1, 0, 0)),
+				max: (new Date(2020, 6, 9, 1, 0, 0)),
+				timeformat: "%Y/%m/%d %H:%M",
+				timeBase: "seconds"
 	    },
 	    yaxes: [ {
                       min: 0,
