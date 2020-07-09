@@ -11,9 +11,11 @@
 	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.saturated.js"></script>
 	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.browser.js"></script>
 	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.drawSeries.js"></script>
+	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.time.js"></script>	
 	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.uiConstants.js"></script>
-	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.legend.js"></script>
+	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.legend.js"></script>	
 	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.axislabels.js"></script>
+	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.tickrotor.js"></script>	
 
     <style>
     .x1Label {
@@ -66,39 +68,59 @@ $(function() {
 		},
 	    },
 	    xaxis: {
+				//autoScale: "none",
                 color: "black",
                 position: 'bottom',
-                axisLabel: 'Time (seconds)',
-		mode: "time",
-		timeBase: "seconds"
+                axisLabel: 'Time',
+				//rotateTicks: 90,
+				mode: "time",
+				minTickSize: [30, "minute"],
+				min: (new Date(2020, 6, 8, 1, 0, 0)),
+				max: (new Date(2020, 6, 9, 1, 0, 0)),
+				timeformat: "%Y/%m/%d %H:%M",
+				timeBase: "seconds"
 	    },
 	    yaxes: [ {
-                      min: 0,
-                      color: "black",
-                      tickFormatter: temperatureFormatter,
-                      position: 'left', 
-                      axisLabel: 'Temperature'
-                    }, 
-                    {
-                      	color: "black",
-						alignTicksWithAxis: 1,
-						position: "right",
-						tickFormatter: pressureFormatter,
-						axisLabel: 'Barometric Pressure', 
-						show: true,  
-						showTicks: true, 
-						gridLines: false
-					}, 
-                    {
-                      	color: "black",
-						alignTicksWithAxis: 1,
-						position: "right",
-						tickFormatter: percentFormatter,
-						axisLabel: 'Humidity', 
-						show: true,  
-						showTicks: true, 
-						gridLines: false
-					}],
+					color: "black",
+					tickFormatter: temperatureFormatter,
+					position: 'left', 
+					axisLabel: 'Temperature',
+					min: -20.00,
+					max: 50.00,
+					autoScaleMargin: null,
+					autoScale: "none",
+					growOnly: false
+				}, 
+				{
+					color: "black",
+					alignTicksWithAxis: 1,
+					position: "right",
+					tickFormatter: pressureFormatter,
+					axisLabel: 'Barometric Pressure', 
+					show: true,  
+					showTicks: true, 
+					gridLines: false,
+					min: 900.00,
+					max: 1100.00,
+					autoScaleMargin: null,
+					autoScale: "none",
+					growOnly: false
+				}, 
+				{
+					color: "black",
+					alignTicksWithAxis: 1,
+					position: "right",
+					tickFormatter: percentFormatter,
+					axisLabel: 'Humidity', 
+					show: true,  
+					showTicks: true, 
+					gridLines: false,
+					min: 0.00,
+					max: 100.00,
+					autoScaleMargin: null,
+					autoScale: "none",
+					growOnly: false					
+				}],
             legend: {
                 position: "ne",
                 show: true
