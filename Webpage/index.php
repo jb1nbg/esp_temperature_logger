@@ -15,11 +15,11 @@
 	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.uiConstants.js"></script>
 	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.legend.js"></script>	
 	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.axislabels.js"></script>
-	<script language="javascript" type="text/javascript" src="jquery/jquery.flot.tickrotor.js"></script>	
+	<!-- <script language="javascript" type="text/javascript" src="jquery/jquery.flot.tickrotor.js"></script> -->
 
     <style>
     .x1Label {
-        fill: black;
+        fill: yellow;
         font-size: 20px;
         font-family: Tahoma, Geneva, sans-serif;
     }
@@ -38,6 +38,18 @@
         font-size: 20px;
         font-family: Tahoma, Geneva, sans-serif;
     }
+
+	.xAxis .tickLabel {      
+		fill: red; 
+		padding: 150px;
+		transform: rotate(90deg);
+		-ms-transform:rotate(90deg); /* IE 9 */
+		-moz-transform:rotate(90deg); /* Firefox */
+		-webkit-transform:rotate(90deg); /* Safari and Chrome */
+		-o-transform:rotate(90deg); /* Opera */
+		rotation-point:50% 50%; /* CSS3 */
+		/*rotation:270deg;*/ /* CSS3 */
+	}
     </style>
 	
 	
@@ -68,17 +80,17 @@ $(function() {
 		},
 	    },
 	    xaxis: {
-				//autoScale: "none",
+				autoScale: "none",
                 color: "black",
                 position: 'bottom',
                 axisLabel: 'Time',
 				//rotateTicks: 90,
 				mode: "time",
 				minTickSize: [30, "minute"],
-				min: (new Date(2020, 6, 8, 1, 0, 0)),
-				max: (new Date(2020, 6, 9, 1, 0, 0)),
-				timeformat: "%Y/%m/%d %H:%M",
-				timeBase: "seconds"
+				min: (new Date(2020, 5, 8, 0, 0, 0)),
+				max: (new Date(2020, 5, 9, 2, 0, 0)),
+				timeformat: "%d.%m.%Y %H:%M",
+				timeBase: "milliseconds"
 	    },
 	    yaxes: [ {
 					color: "black",

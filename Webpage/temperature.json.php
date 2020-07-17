@@ -48,7 +48,7 @@
     $timestamp = strtotime($row['timestamp']);
     $diff = $timestamp - $start_time;
     */
-    $diff = strtotime($row['timestamp']);
+    $diff = (strtotime($row['timestamp']) * 1000);
     array_push($temperature_data, array($diff, $row['temperature']));
     array_push($pressure_data, array($diff, $row['pressure']));
     array_push($humidity_data, array($diff, $row['humidity']));
