@@ -42,7 +42,10 @@ void doWork();
 void setup_wifi();
 void setup_ntp();
 bool setup_bmx280();
-void pushData(char* timestamp, float temp, double pressure, float humidity);
+void setup_voltageMeasuremenet();
+void pushData(char* timestamp, float temp, double pressure, float humidity, float battery_voltage);
+void deepSleep();
+float getVoltage();
 
 void printLocalTime()
 {
@@ -56,6 +59,11 @@ void printBMX280(float temp, double pressure, float humidity)
   Serial.print("Humidity: "); Serial.print(humidity); Serial.println(" %");
 }
 
+void printVoltage(float voltage)
+{
+  Serial.print("Battery voltage: "); Serial.print(voltage); Serial.println(" V");
+}
+
 void setup_wifi()
 {
   WiFi.begin( WIFI_SSID, WIFI_PASS );
@@ -64,10 +72,14 @@ void setup_wifi()
 
   Serial.println();
   Serial.print("Connecting");
+  uint8_t iTryConnect = 0;
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(500);
     Serial.print(".");
+    iTryConnect++;
+    if (iTryConnect > 30)
+      deepSleep();
   }
 
   Serial.println("success!");
@@ -122,6 +134,18 @@ bool setup_bmx280()
   }
 }
 
+void setup_voltageMeasurement()
+{
+  pinMode(A0, INPUT);
+}
+
+float getVoltage()
+{
+    unsigned int raw = analogRead(A0);
+    Serial.println(raw, DEC);
+    return (4.5f * (raw / 1023)); 
+}
+
 void deepSleep()
 {
   Serial.print("Deep sleep for ");
@@ -137,6 +161,8 @@ void setup()
   
   if (setup_bmx280())
   {
+    setup_voltageMeasurement();
+    
 #ifdef DEEP_SLEEP
     doWork();
     deepSleep();
@@ -150,7 +176,7 @@ void setup()
   }
 }
 
-void pushData(char* timestamp, float temp, double pressure, float humidity)
+void pushData(char* timestamp, float temp, double pressure, float humidity, float battery_voltage)
 {
   HTTPClient http;
   
@@ -195,7 +221,10 @@ void doWork()
       humidity = bmx280.getHumidity();
     
     printBMX280(temp, pressure, humidity);
-          
+
+    float voltage = getVoltage();
+    printVoltage(voltage);
+
     setup_wifi();
     setup_ntp();
   
@@ -219,7 +248,7 @@ void doWork()
         sprintf(timestampString,"%04d-%02d-%02d %02d.%02d.%02d", p.getYear(), p.getMonth(), p.getMonthDay(), p.getHours(), p.getMinutes(), p.getSeconds());
         Serial.println(timestampString);
           
-        pushData(timestampString, temp, pressure, humidity);
+        pushData(timestampString, temp, pressure, humidity, voltage);
       }
     }
     else 
