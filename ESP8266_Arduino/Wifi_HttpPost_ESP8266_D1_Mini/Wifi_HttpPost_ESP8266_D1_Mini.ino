@@ -43,6 +43,7 @@ void setup_wifi();
 void setup_ntp();
 bool setup_bmx280();
 void pushData(char* timestamp, float temp, double pressure, float humidity);
+void deepSleep();
 
 void printLocalTime()
 {
@@ -64,10 +65,14 @@ void setup_wifi()
 
   Serial.println();
   Serial.print("Connecting");
+  uint8_t iTryConnect = 0;
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(500);
     Serial.print(".");
+    iTryConnect++;
+    if (iTryConnect > 30)
+      deepSleep();
   }
 
   Serial.println("success!");
