@@ -38,6 +38,11 @@
         font-size: 20px;
         font-family: Tahoma, Geneva, sans-serif;
     }
+	.y4Label {
+        fill: black;
+        font-size: 20px;
+        font-family: Tahoma, Geneva, sans-serif;
+    }	
     </style>
 	
 	
@@ -57,15 +62,19 @@ $(function() {
 	    return v.toFixed(2) + "°C";
 	}
 
+	function voltageFormatter(v, axis) {
+	    return v.toFixed(2) + "V";
+	}
+
 	var options = {
 	    series: {
-		lines: {
-		    show: true,
-		    lineWidth: 2
-		},
-		points: {
-		    show: false
-		},
+			lines: {
+		    	show: true,
+		    	lineWidth: 2
+			},
+			points: {
+		    	show: false
+			},
 	    },
 	    xaxis: {
 				//autoScale: "none",
@@ -120,12 +129,27 @@ $(function() {
 					autoScaleMargin: null,
 					autoScale: "none",
 					growOnly: false					
+				}, 
+				{
+					color: "black",
+					alignTicksWithAxis: 1,
+					position: "right",
+					tickFormatter: voltageFormatter,
+					axisLabel: 'Battery Voltage', 
+					show: true,  
+					showTicks: true, 
+					gridLines: false,
+					min: 0.00,
+					max: 4.50,
+					autoScaleMargin: null,
+					autoScale: "none",
+					growOnly: false					
 				}],
             legend: {
                 position: "ne",
                 show: true
             },
-            colors: [ "blue", "green", "red" ]
+            colors: [ "blue", "green", "red", "black" ]
 	}
 
 	function dataUpdate() {
@@ -142,6 +166,7 @@ $(function() {
 				data.push(series["temperature"]);
 				data.push(series["pressure"]);
 				data.push(series["humidity"]);
+				data.push(series["voltage"]);
 
 				$.plot("#placeholder", data, options);
 			}

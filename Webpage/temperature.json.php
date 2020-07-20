@@ -12,18 +12,9 @@
   $temperature_data = array();
   $pressure_data = array();
   $humidity_data = array();
+  $voltage_data = array();
 
   $db = new mysqli($servername, $username, $password, $dbname);
-  //$db = new SQLite3('measurement.db');
-  
-  /*
-  $start_time = 0;
-  $first = $db->query("SELECT * FROM data WHERE host = '192.168.178.30' ORDER BY id ASC LIMIT 1");
-  //if ($row = $first->fetchArray()) {
-  if ($row = $first->fetch_assoc()) {
-    $start_time = strtotime($row['timestamp']);
-  }
-  */
 
   $filterDate = "";
   $date = "";
@@ -41,22 +32,19 @@
 
   $res = $db->query("SELECT * FROM data WHERE host = '192.168.178.30' " . $filterDate);
 
-  //while ($row = $res->fetchArray()) {
   while($row = $res->fetch_assoc()) 
   {
-    /*
-    $timestamp = strtotime($row['timestamp']);
-    $diff = $timestamp - $start_time;
-    */
     $diff = strtotime($row['timestamp']);
     array_push($temperature_data, array($diff, $row['temperature']));
     array_push($pressure_data, array($diff, $row['pressure']));
     array_push($humidity_data, array($diff, $row['humidity']));
+    array_push($voltage_data, array($diff, $row['battery_voltage']));
   }
 
   $myObj->temperature = array("label" => "temperature", "data" => $temperature_data);
   $myObj->pressure = array("label" => "pressure", "data" => $pressure_data, "yaxis" => 2);
   $myObj->humidity = array("label" => "humidity", "data" => $humidity_data, "yaxis" => 3);
+  $myObj->voltage = array("label" => "battery_voltage", "data" => $voltage_data, "yaxis" => 4);
 
   $myJSON = json_encode($myObj);
 

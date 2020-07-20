@@ -9,7 +9,7 @@ $dbname = "temperature";
 // If you change this value, the ESP32 sketch needs to match
 $api_key_value = "temperature_logger";
 
-$api_key= $TIMESTAMP = $TEMPERATURE = $PRESSURE = $HUMIDITY = "";
+$api_key= $TIMESTAMP = $TEMPERATURE = $PRESSURE = $HUMIDITY = $VOLTAGE = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $api_key = test_input($_POST["api_key"]);
@@ -18,6 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $TEMPERATURE = test_input($_POST["temperature"]);
         $PRESSURE = test_input($_POST["pressure"]);
         $HUMIDITY = test_input($_POST["humidity"]);
+        $VOLTAGE = test_input($_POST["voltage"]);
         
         // Create connection
         $conn = new mysqli($servername, $username, $password, $dbname);
@@ -26,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             die("Connection failed: " . $conn->connect_error);
         } 
         
-        $sql = "INSERT INTO data (host, timestamp, temperature, pressure, humidity) VALUES ('" . $_SERVER['REMOTE_ADDR'] . "', '" . $TIMESTAMP . "', '" . $TEMPERATURE . "', '" . $PRESSURE . "', '" . $HUMIDITY . "')";
+        $sql = "INSERT INTO data (host, timestamp, temperature, pressure, humidity, battery_voltage) VALUES ('" . $_SERVER['REMOTE_ADDR'] . "', '" . $TIMESTAMP . "', '" . $TEMPERATURE . "', '" . $PRESSURE . "', '" . $HUMIDITY . "' , '" . $VOLTAGE . "')";
         
         if ($conn->query($sql) === TRUE) {
             echo "New record created successfully";

@@ -142,8 +142,7 @@ void setup_voltageMeasurement()
 float getVoltage()
 {
     unsigned int raw = analogRead(A0);
-    Serial.println(raw, DEC);
-    return (4.5f * (raw / 1023)); 
+    return (4.5f * (raw / 1023.0f)); 
 }
 
 void deepSleep()
@@ -191,6 +190,7 @@ void pushData(char* timestamp, float temp, double pressure, float humidity, floa
   httpRequestData += "&temperature=" + String(temp);
   httpRequestData += "&pressure=" + String(pressure / 100);
   httpRequestData += "&humidity=" + String(humidity);
+  httpRequestData += "&voltage=" + String(battery_voltage);
   Serial.println(httpRequestData);
       
   // Send HTTP POST request
