@@ -1,0 +1,1 @@
+UPDATE data SET battery_voltage = 0.0;
